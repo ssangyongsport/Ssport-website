@@ -1,7 +1,7 @@
 
 export default function Page() {
   return (
-    <Layout>
+    <div>
       <h1>This page is protected by Middleware</h1>
       <p>Only admin users can see this page.</p>
       <p>
@@ -11,6 +11,6 @@ export default function Page() {
         </a>
         .
       </p>
-    </Layout>
+    </div>
   )
 }
