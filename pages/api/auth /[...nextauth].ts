@@ -1,9 +1,16 @@
-import NextAuth from "next-auth";
-import type { NextApiRequest, NextApiResponse } from "next";
-import FacebookProvider from "next-auth/providers/facebook";
-import GoogleProvider from "next-auth/providers/google";
-import LineProvider from "next-auth/providers/line";
+import NextAuth from 'next-auth';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import FacebookProvider from 'next-auth/providers/facebook';
+import GoogleProvider from 'next-auth/providers/google';
+import LineProvider from 'next-auth/providers/line';
 
+const GOOGLE_AUTHORIZATION_URL =
+  'https://accounts.google.com/o/oauth2/v2/auth?' +
+  new URLSearchParams({
+    prompt: 'consent',
+    access_type: 'offline',
+    response_type: 'code',
+  });
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
   const providers = [
     FacebookProvider({
@@ -13,6 +20,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
       clientSecret: process.env.GOOGLE_SECRET,
+      authorization: GOOGLE_AUTHORIZATION_URL,
     }),
     LineProvider({
       clientId: process.env.LINE_CHANNEL_ID,
@@ -28,15 +36,15 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
     },
     session: {
       // This is the default. The session is saved in a cookie and never persisted anywhere.
-      strategy: "jwt",
+      strategy: 'jwt',
     },
     // Enable debug messages in the console if you are having problems
     debug: true,
 
     pages: {
-      signIn: "/auth/signin",
-      error: "/auth/signin",
-      newUser: "/auth/new-user",
+      signIn: '/auth/signin',
+      error: '/auth/signin',
+      newUser: '/auth/new-user',
     },
 
     callbacks: {
