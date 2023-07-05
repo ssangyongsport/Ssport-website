@@ -1,6 +1,5 @@
 import { useSession, signIn, signOut, getProviders } from 'next-auth/react';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-import { Box, Button, Center, Stack, Text } from '@chakra-ui/react';
 import { FcGoogle } from 'react-icons/fc';
 import { FaFacebook } from 'react-icons/fa';
 import { FaLine } from 'react-icons/fa';
