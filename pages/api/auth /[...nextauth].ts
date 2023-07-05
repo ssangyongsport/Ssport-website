@@ -1,67 +1,44 @@
-import NextAuth from "next-auth";
-import type { NextApiRequest, NextApiResponse } from "next";
-import FacebookProvider from "next-auth/providers/facebook";
-import GoogleProvider from "next-auth/providers/google";
-import LineProvider from "next-auth/providers/line";
+import NextAuth, { NextAuthOptions } from "next-auth"
+import GoogleProvider from "next-auth/providers/google"
+import FacebookProvider from "next-auth/providers/facebook"
+import GithubProvider from "next-auth/providers/github"
+import TwitterProvider from "next-auth/providers/twitter"
+import Auth0Provider from "next-auth/providers/auth0"
 
-export default async function auth(req: NextApiRequest, res: NextApiResponse) {
-  const providers = [
+// For more information on each option (and a full list of options) go to
+// https://next-auth.js.org/configuration/options
+export const authOptions: NextAuthOptions = {
+  // https://next-auth.js.org/configuration/providers/oauth
+  providers: [
+    Auth0Provider({
+      clientId: process.env.AUTH0_ID,
+      clientSecret: process.env.AUTH0_SECRET,
+      issuer: process.env.AUTH0_ISSUER,
+    }),
     FacebookProvider({
       clientId: process.env.FACEBOOK_ID,
       clientSecret: process.env.FACEBOOK_SECRET,
+    }),
+    GithubProvider({
+      clientId: process.env.GITHUB_ID,
+      clientSecret: process.env.GITHUB_SECRET,
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
       clientSecret: process.env.GOOGLE_SECRET,
     }),
-    LineProvider({
-      clientId: process.env.LINE_CHANNEL_ID,
-      clientSecret: process.env.LINE_CHANNEL_SECRET,
+    TwitterProvider({
+      clientId: process.env.TWITTER_ID,
+      clientSecret: process.env.TWITTER_SECRET,
+      version: "2.0",
     }),
-  ];
-
-  return await NextAuth(req, res, {
-    providers,
-    secret: process.env.SECRET,
-    jwt: {
-      secret: process.env.SECRET,
+  ],
+  callbacks: {
+    async jwt({ token }) {
+      token.userRole = "admin"
+      return token
     },
-    session: {
-      // This is the default. The session is saved in a cookie and never persisted anywhere.
-      strategy: "jwt",
-    },
-    // Enable debug messages in the console if you are having problems
-    debug: true,
-
-    pages: {
-      signIn: "/auth/signin",
-      error: "/auth/signin",
-      newUser: "/auth/new-user",
-    },
-
-    callbacks: {
-      async session({ session, token }) {
-        // Send properties to the client, like an access_token from a provider.
-        session.accessToken = token.accessToken;
-        session.refreshToken = token.refreshToken;
-        session.idToken = token.idToken;
-        session.provider = token.provider;
-        session.id = token.id;
-        return session;
-      },
-      async jwt({ token, user, account }) {
-        // Persist the OAuth access_token to the token right after signin
-        if (account) {
-          token.accessToken = account.access_token;
-          token.refreshToken = account.refresh_token;
-          token.idToken = account.id_token;
-          token.provider = account.provider;
-        }
-        if (user) {
-          token.id = user.id.toString();
-        }
-        return token;
-      },
-    },
-  });
+  },
 }
+
+export default NextAuth(authOptions)
